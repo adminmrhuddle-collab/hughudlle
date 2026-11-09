@@ -1,0 +1,40 @@
+name: Upload image to Hugging Face
+
+run-name: Upload ${{ inputs.destination_name }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_path:
+        description: "Path of image inside this repository"
+        required: true
+        type: string
+      destination_name:
+        description: "Filename in the Hugging Face dataset"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Upload image
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          INPUT_IMAGE_PATH: ${{ inputs.image_path }}
+          INPUT_DESTINATION_NAME: ${{ inputs.destination_name }}
+        run: python upload_image.py
