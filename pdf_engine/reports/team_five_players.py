@@ -1,7 +1,7 @@
 from reportlab.platypus import SimpleDocTemplate, PageBreak, Table, Paragraph, Spacer, Image
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
-from reportlab.lib.colors import HexColor
+from reportlab.lib.colors import HexColor, white
 from components.layout import header, band, grid, chart, footer, normal, section
 from charts.charts import bars, radar
 from calculations.team_statistics import stat, total, average, pct, overall
@@ -9,7 +9,7 @@ from utils.images import player_photo
 
 def _name(p): return p.get('name') or p.get('displayName') or 'Player'
 def _row(p, fields): return [_name(p)] + [str(f(p)) for f in fields]
-def _page(story, team, number, name): story.extend([header(team,number,name),Spacer(1,5*mm)])
+def _page(story, team, number, name): story.append(Spacer(1,1*mm))
 def _end(story, team, number): story.extend([Spacer(1,5*mm),footer(team,number),PageBreak()])
 
 def build(payload, output):
@@ -36,4 +36,12 @@ def build(payload, output):
         vals=[stat(p,keys[0]) for p in players]; values2=[stat(p,keys[min(1,len(keys)-1)]) for p in players]
         story += [Table([[chart(bars([_name(p) for p in players],vals,keys[0].replace('Yards',' Yards').title(),'')),chart(bars([_name(p) for p in players],values2,keys[min(1,len(keys)-1)].replace('Yards',' Yards').title(),''))]],colWidths=[90*mm,90*mm]),Spacer(1,5*mm),band('KEY INSIGHTS'),Spacer(1,2*mm),Paragraph(f"<b>Team total:</b> {int(sum(vals))}. <b>Leader:</b> {_name(max(players,key=lambda p: stat(p,keys[0])))}. Figures are calculated from the five selected players only.",normal)]
         _end(story,team,index)
-    doc=SimpleDocTemplate(str(output),pagesize=A4,rightMargin=15*mm,leftMargin=15*mm,topMargin=12*mm,bottomMargin=12*mm); doc.build(story)
+    labels = ['PHYSICAL PROFILE','PASSING STATISTICS','DEFENSIVE STATISTICS','RECEIVING STATISTICS','RUSHING STATISTICS','ALL-PURPOSE PRODUCTION','PLAYER COMPARISON']
+    def page_header(canvas, doc):
+        canvas.saveState(); width, height = A4
+        canvas.setFillColor(HexColor('#14264f')); canvas.rect(15*mm, height-33*mm, 180*mm, 21*mm, fill=1, stroke=0)
+        canvas.setFillColor(HexColor('#d0021b')); canvas.rect(15*mm, height-33*mm, 180*mm, 1*mm, fill=1, stroke=0)
+        canvas.setFillColor(white); canvas.setFont('Helvetica-Bold', 17); canvas.drawString(22*mm, height-23*mm, str(team.get('name') or 'MR HUDDLE').upper())
+        canvas.setFont('Helvetica-Bold', 10); canvas.drawRightString(188*mm, height-23*mm, labels[min(doc.page,7)-1])
+        canvas.restoreState()
+    doc=SimpleDocTemplate(str(output),pagesize=A4,rightMargin=15*mm,leftMargin=15*mm,topMargin=39*mm,bottomMargin=12*mm); doc.build(story, onFirstPage=page_header, onLaterPages=page_header)
