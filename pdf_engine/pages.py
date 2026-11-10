@@ -98,7 +98,6 @@ def build_pages(players, team):
 {panel("Athletic Profile (100 = team best)", "target", '<div style="display:flex;align-items:center;gap:6px;padding:2px 4px">' + rad1 + '<div class="legend" style="margin-left:0">' + rad_leg + '</div></div>', style="flex:1")}
 {panel("Vertical Jump", "bolt", lollipop_n(458, 240, vj, vmax_, vticks, lambda i, v: f"{v} cm"), style="flex:1")}
 </div>
-{bottom_row([ins1, ins2, ins3])}
 {foot(1)}</div>''')
 
     # =============== PAGE 2: PASSING ===============
