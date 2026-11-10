@@ -6,7 +6,7 @@ from PIL import Image, ImageOps
 MAX_BYTES = 8 * 1024 * 1024
 
 
-def fetch_data_uri(url, size=(360, 300)):
+def fetch_data_uri(url, size=(360, 640)):
     if not url:
         return None
     try:
