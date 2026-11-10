@@ -244,7 +244,7 @@ def insights2(items):
     return f'<div class="insb"><div>{icon("bulb", GOLD, 44)}</div><div><h3>Key Insights</h3><ul>{li}</ul></div></div>'
 
 def bottom_row(items):
-    return (f'<div class="row2" style="margin-top:14px;align-items:stretch;height:172px"><div style="flex:1.55">{insights2(items)}</div>'
+    return (f'<div class="row2" style="margin-top:12px;align-items:stretch;height:150px"><div style="flex:1.55">{insights2(items)}</div>'
             f'<div style="flex:1"><div class="note2"><div class="nt2">{icon("note", NAVY, 24)}Note :</div>'
             f'<div class="nl"></div><div class="nl"></div><div class="nl"></div></div></div></div>')
 
@@ -550,7 +550,7 @@ def pcards():
     for p in PL:
         out += (f'<div style="flex:1;border-radius:18px;overflow:hidden;color:#fff;text-align:center;background:{p["c"]};box-shadow:0 2px 4px rgba(0,0,0,.18)">'
                 f'<div style="font-style:italic;font-weight:800;font-size:20px;line-height:1.05;padding:9px 4px 7px">{p["n1"]}<br>{p["n2"]}</div>'
-                f'<div style="margin:0 6px;height:84px;border-radius:12px;overflow:hidden;background:#e9f0f7">{photo_or_silhouette(p)}</div>'
+                f'<div style="width:132px;height:160px;margin:0 auto;border-radius:12px;overflow:hidden;background:#e9f0f7">{photo_or_silhouette(p)}</div>'
                 f'<div style="font-weight:800;font-size:20px;padding:7px 0 6px">#{p["num"]} • {p["pos"]}</div></div>')
     return out + '</div>'
 
