@@ -1,0 +1,46 @@
+name: Generate team comparison PDF report
+run-name: Generate team comparison report ${{ inputs.report_id }}
+on:
+  workflow_dispatch:
+    inputs:
+      report_id: {description: Unique report ID, required: true, type: string}
+      team_a_id: {description: First team ID, required: true, type: string}
+      team_b_id: {description: Second team ID, required: true, type: string}
+      payload_base64: {description: Base64 encoded JSON report payload, required: true, type: string}
+permissions: {contents: read}
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Install report engine
+        run: pip install -r pdf_engine/requirements.txt
+      - name: Check Chrome (used to render the PDF)
+        run: |
+          if ! command -v google-chrome >/dev/null; then
+            sudo apt-get update && sudo apt-get install -y chromium-browser || sudo snap install chromium
+          fi
+          (google-chrome --version || chromium --version || chromium-browser --version)
+      - name: Validate and generate PDF
+        env:
+          PAYLOAD_BASE64: ${{ inputs.payload_base64 }}
+        run: |
+          mkdir -p work
+          echo "$PAYLOAD_BASE64" | base64 --decode > work/request.json
+          python pdf_engine/compare_main.py --input work/request.json --output work/report.pdf
+      - name: Upload to Hugging Face dataset
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          TEAM_A: ${{ inputs.team_a_id }}
+          TEAM_B: ${{ inputs.team_b_id }}
+          REPORT_ID: ${{ inputs.report_id }}
+        run: |
+          python - <<'PY'
+          import os
+          from huggingface_hub import HfApi
+          path=f"reports/team-compare/{os.environ['TEAM_A']}_vs_{os.environ['TEAM_B']}/{os.environ['REPORT_ID']}.pdf"
+          HfApi(token=os.environ['HF_TOKEN']).upload_file(path_or_fileobj='work/report.pdf', path_in_repo=path, repo_id='mrhudlle/mr-huddle-images', repo_type='dataset', commit_message=f'Generate team comparison report {os.environ["REPORT_ID"]}')
+          print(f"https://huggingface.co/datasets/mrhudlle/mr-huddle-images/resolve/main/{path}")
+          PY
