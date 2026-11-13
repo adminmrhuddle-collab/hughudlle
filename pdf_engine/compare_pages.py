@@ -9,7 +9,10 @@ CA, CB = "#1f6fd6", "#d0021b"     # team A blue, team B red
 MUTE = "#8a93a6"
 
 CMPCSS = """
-.page.big + .page.big{break-before:page}
+/* Use the legacy print break as well as the modern declaration. Chrome on
+   GitHub Actions otherwise creates an empty second page for this report. */
+.page{break-after:auto;page-break-after:always}
+.page.big + .page.big{break-before:auto;page-break-before:auto}
 .vsb{position:relative;display:grid;grid-template-columns:1fr 150px 1fr;align-items:center;border-radius:20px;overflow:hidden;margin-top:14px;height:262px;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25)}
 .vsb .ta,.vsb .tb{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 14px}
 .vsb .ta{background:linear-gradient(135deg,#0f3a86,#1f6fd6)}.vsb .tb{background:linear-gradient(225deg,#7a0f1e,#d0021b)}
